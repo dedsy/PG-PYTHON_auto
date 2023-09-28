@@ -2,6 +2,7 @@ import openpyxl
 from docxtpl import DocxTemplate
 import re
 
+
 def generate_leave_application(excel_file: str, excel_sheet: str, doc_template: str):
     wb = openpyxl.load_workbook(filename=excel_file)
     sheet = wb[excel_sheet]
