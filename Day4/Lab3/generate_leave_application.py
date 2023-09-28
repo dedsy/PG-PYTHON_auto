@@ -12,7 +12,7 @@ def generate_leave_application(excel_file: str, excel_sheet: str, doc_template: 
 
     email_doc = Document()
     table = email_doc.add_table(rows=1, cols=2, style='Table Grid')
-    table.cell(0, 0).paragraphs[0].add_run('Имя и Фамилия').bold = True
+    table.cell(0, 0).paragraphs[0].add_run('ФИО').bold = True
     table.cell(0, 1).paragraphs[0].add_run('email').bold = True
 
     row_count = sheet.max_row
