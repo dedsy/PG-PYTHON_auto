@@ -2,21 +2,22 @@ import pandas
 import collections
 import openpyxl
 
-def make_report(log_file_name: str, log_sheet_name: str, report_template_file_name: str, report_sheet_name: str, report_output_file_name: str):
+
+def make_report(log_file_name: str, log_sheet_name: str,
+                report_template_file_name: str, report_sheet_name: str,
+                report_output_file_name: str):
     # Open Excel log journal
     excel_data = pandas.read_excel(log_file_name, sheet_name=log_sheet_name)
 
-    # открываем таблицу с отчетом и заполняем ячейк
+    # Open Excel report template
     wb = openpyxl.load_workbook(filename=report_template_file_name)
     sheet = wb[report_sheet_name]
 
-    # Count browsers
+    # Seven most common browsers
     browsers_count = collections.Counter(excel_data['Браузер'])
-
-    # 7 Most common browsers
     browsers_most_common = browsers_count.most_common(7)
 
-    # Get most common browsers and write to report file
+    # Get most common browsers and write cells
     sheet['A5'] = browsers_most_common[0][0]
     sheet['A6'] = browsers_most_common[1][0]
     sheet['A7'] = browsers_most_common[2][0]
@@ -25,18 +26,18 @@ def make_report(log_file_name: str, log_sheet_name: str, report_template_file_na
     sheet['A10'] = browsers_most_common[5][0]
     sheet['A11'] = browsers_most_common[6][0]
 
-    # Split products
+    # Split products and define products variable
     products = []
     for product in excel_data['Купленные товары']:
         tmp = product.split(',')
         for el in tmp:
             products.append(el)
 
-    # 7 Most common products
+    # Seven most common products
     products_count = collections.Counter(products)
     products_most_common = products_count.most_common(7)
 
-    # Get most common products and write to report file
+    # Get most common products and write cells
     sheet['A19'] = products_most_common[0][0]
     sheet['A20'] = products_most_common[1][0]
     sheet['A21'] = products_most_common[2][0]
@@ -45,20 +46,28 @@ def make_report(log_file_name: str, log_sheet_name: str, report_template_file_na
     sheet['A24'] = products_most_common[5][0]
     sheet['A25'] = products_most_common[6][0]
 
-    # Browser visitors by month
     # Create dict, key = month number, value = visit count
     months = {}
     for i in range(1, 13):
         months.update({i: 0})
 
+    # Count visitors by browser for each month
     # Create dict, key = popular browsers
     browser_by_month = {}
     for i in range(7):
         browser_by_month[browsers_most_common[i][0]] = months.copy()
 
-    # Count log rows and create list with date and browsers info
+    # Define variable for Date and Browser
     date_and_browsers = excel_data[['Дата посещения', 'Браузер']]
+
+    # Define variable for Date and Products
+    date_and_products = excel_data[['Дата посещения', 'Купленные товары']]
+
+    # Count log rows
     rows = date_and_browsers.shape[0]
+
+    # Columns in report file
+    report_columns = ['B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N']
 
     # Extract month and browser and increase count in browser_by_month
     for i in range(rows):
@@ -67,10 +76,7 @@ def make_report(log_file_name: str, log_sheet_name: str, report_template_file_na
         if browser in browser_by_month.keys():
             browser_by_month[browser][month] += 1
 
-    # Columns in report file
-    report_columns = ['B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N']
-
-    # Create list with most common browsers
+    # Define list with most common browser names
     report_browsers = []
     for browser in browser_by_month.keys():
         report_browsers.append(browser)
@@ -81,20 +87,17 @@ def make_report(log_file_name: str, log_sheet_name: str, report_template_file_na
             cell = str(report_columns[column]) + str(list(range(5, 12))[row])
             sheet[cell] = browser_by_month[report_browsers[row]][column + 1]
 
-    # Sum of all visitors by month
-    sum = months.copy()
+    # total of all visitors by month
+    total = months.copy()
     for value in browser_by_month.values():
         for month, count in value.items():
-            sum[month] += count
+            total[month] += count
 
-    # Write sum of all visitors by month
+    # Write total of all visitors by month
     column = 0
-    for value in sum.values():
+    for value in total.values():
         sheet[report_columns[column] + str(12)] = value
         column += 1
-
-    # Create list with date and products info
-    date_and_products = excel_data[['Дата посещения', 'Купленные товары']]
 
     # Create dict, key = popular products
     product_by_month = {}
@@ -121,22 +124,22 @@ def make_report(log_file_name: str, log_sheet_name: str, report_template_file_na
             cell = str(report_columns[column]) + str(list(range(19, 26))[row])
             sheet[cell] = product_by_month[report_products[row]][column + 1]
 
-    # Sum of all products by month
-    sum = months.copy()
+    # total of all products by month
+    total = months.copy()
     for value in product_by_month.values():
         for month, count in value.items():
-            sum[month] += count
+            total[month] += count
 
-    # Write sum of all products by month
+    # Write total of all products by month
     column = 0
-    for value in sum.values():
+    for value in total.values():
         sheet[report_columns[column] + str(26)] = value
         column += 1
 
     # Populars and not populars products womens and mens
     sex_and_products = excel_data[['Пол', 'Купленные товары']]
 
-    # List of men and womens products
+    # Define lists of men and womens products
     men_products = []
     women_products = []
 
