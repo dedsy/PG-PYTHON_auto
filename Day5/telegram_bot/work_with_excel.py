@@ -1,10 +1,9 @@
 import pandas
-import collections
-import openpyxl
 
 
 def search_excel(search_string: str):
     excel_data = pandas.read_excel('people_data_vacation.xlsx', sheet_name='vacation')
+
     search_result = excel_data[excel_data.eq(search_string).any(axis=1)]
 
     result = []
