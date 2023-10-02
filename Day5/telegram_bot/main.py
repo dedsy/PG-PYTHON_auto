@@ -8,7 +8,7 @@ bot = telebot.TeleBot(token)
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    bot.send_message(message.chat.id,"Введите имя сотрудника, данные которого хотите получить.")
+    bot.send_message(message.chat.id,"Введите имя сотрудника, компанию, должность или email для поиска информации.")
 
 
 @bot.message_handler(content_types=['text'])
